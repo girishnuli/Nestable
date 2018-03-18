@@ -42,7 +42,8 @@
             collapseBtnHTML : '<button data-action="collapse" type="button">Collapse</button>',
             group           : 0,
             maxDepth        : 5,
-            threshold       : 20
+            threshold       : 20,
+            onDragFinished  : function(currentNode, parentNode) { }
         };
 
     function Plugin(element, options)
@@ -285,13 +286,18 @@
             }
         },
 
-        dragStop: function(e)
-        {
+        dragStop: function(e) {
+            var list = this;
             var el = this.dragEl.children(this.options.itemNodeName).first();
             el[0].parentNode.removeChild(el[0]);
             this.placeEl.replaceWith(el);
 
             this.dragEl.remove();
+
+            var $parents = $(el[0]).parents('.' + list.options.itemClass);
+            var $parent = null;
+            if ($parents.length > 0) $parent = $parents[0];
+            list.options.onDragFinished(el[0], $parent);
             this.el.trigger('change');
             if (this.hasNewRoot) {
                 this.dragRootEl.trigger('change');
